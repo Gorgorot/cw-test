@@ -54,7 +54,15 @@ export class DocumentRendererService {
 
     if (!this.rendererBaseSizes.length) {
       renderers
-        .map(d => ({ width: d.rendererElement()!.nativeElement.clientWidth, height: d.rendererElement()!.nativeElement.clientHeight }))
+        .map(renderer => {
+          const rendererElement = renderer.rendererElement();
+
+          if (!rendererElement) {
+            throw new Error('No renderer element found');
+          }
+
+          return <ISize> { width: rendererElement.nativeElement.clientWidth, height: rendererElement.nativeElement.clientHeight };
+        })
         .forEach(v => this.rendererBaseSizes.push(v));
     }
 
@@ -101,7 +109,7 @@ export class DocumentRendererService {
     }
 
     const annotations = annotationsSrc();
-    const index = annotations.findIndex(v => v.id === id);
+    const index = annotations.findIndex(annotation => annotation.id === id);
 
     if (index >= 0) {
       annotations.splice(index, 1);
@@ -116,12 +124,12 @@ export class DocumentRendererService {
       return;
     }
 
-    annotationsSrc.update(value => {
-      const updatedAnnotation = value.find(v => v.id === id);
+    annotationsSrc.update(annotations => {
+      const updatedAnnotation = annotations.find(annotation => annotation.id === id);
       const scale = this.currentScale();
 
       if (!updatedAnnotation) {
-        return value;
+        return annotations;
       }
 
       updatedAnnotation.position = {
@@ -129,7 +137,7 @@ export class DocumentRendererService {
         y: updatedAnnotation.position.y + position.y / scale,
       };
 
-      return value.slice(0);
+      return annotations.slice(0);
     })
   }
 
