@@ -3,7 +3,7 @@
   <div class="document-annotations">
     @for(annotation of annotations()(); track annotation.id) {
       <app-document-annotation appDragDrop
-                               [scalableWith]="renderWrapper!.nativeElement"
+                               [scalableWith]="renderWrapper.nativeElement"
                                [text]="annotation.text"
                                [position]="annotation.position"
                                (dblclick)="onRightClickAnnotation(annotation.id)"

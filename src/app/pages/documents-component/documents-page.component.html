@@ -3,7 +3,12 @@
 </mat-toolbar>
 
 <section #mainSection class="content">
-  @if (selectedDocument(); as doc) {
-    <app-document-viewer [document]="doc" (saveChanges)="onViewerSaveChanges($event)" [style.height.px]="viewerHeight()"/>
+  @let _document = selectedDocument();
+
+  @if (_document) {
+    <app-document-viewer [document]="_document" (saveChanges)="onViewerSaveChanges($event)" [style.height.px]="viewerHeight()"/>
+  }
+  @else if (_document === null) {
+    <div>404</div>
   }
 </section>

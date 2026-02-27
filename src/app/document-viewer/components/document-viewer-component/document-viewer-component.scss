@@ -8,8 +8,7 @@
   .renderer-wrapper {
     display: flex;
     background: gray;
-    align-items: center;
-    justify-content: center;
+    margin: auto;
   }
 
   .controls {
@@ -30,9 +29,6 @@
     overflow: auto;
     flex-direction: column;
     gap: 20px;
-
-    &__spacer {
-      padding: 10px 0;
-    }
+    padding-bottom: 40px;
   }
 }

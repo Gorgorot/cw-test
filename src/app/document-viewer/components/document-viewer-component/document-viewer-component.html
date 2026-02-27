@@ -19,7 +19,7 @@
 </div>
 
 <div class="pages-container">
-  @for(page of _document.pages; track page.number; let l = $last) {
-    <app-document-renderer [url]="page.imageUrl" [pageId]="page.number" class="renderer-wrapper"/>
+  @for(page of _document.pages; track page.number) {
+    <app-document-renderer class="renderer-wrapper" [url]="page.imageUrl" [pageId]="page.number"/>
   }
 </div>

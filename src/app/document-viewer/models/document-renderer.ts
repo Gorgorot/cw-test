@@ -3,6 +3,11 @@ export interface IPosition {
   y: number;
 }
 
+export interface ISize {
+  width: number;
+  height: number;
+}
+
 export interface IDocumentRendererAnnotation {
   id: string;
   text: string;

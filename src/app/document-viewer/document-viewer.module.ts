@@ -4,7 +4,7 @@ import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { DocumentRendererComponent } from './components/document-renderer-component/document-renderer-component';
 import { DocumentAnnotationComponent } from './components/document-annotation/document-annotation.component';
-import { AddAnotationComponent } from './components/dialogs/add-anotation-component/add-anotation.component';
+import { AddAnnotationComponent } from './components/dialogs/add-anotation-component/add-annotation.component';
 import { MatDialogContent } from '@angular/material/dialog';
 import { MatFormField, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -18,7 +18,7 @@ import { DocumentRendererService } from './services/document-renderer.service';
     DocumentViewerComponent,
     DocumentRendererComponent,
     DocumentAnnotationComponent,
-    AddAnotationComponent,
+    AddAnnotationComponent,
     DragDropDirective,
   ],
   imports: [
@@ -35,7 +35,7 @@ import { DocumentRendererService } from './services/document-renderer.service';
     DocumentViewerComponent,
     DocumentRendererComponent,
     DocumentAnnotationComponent,
-    AddAnotationComponent,
+    AddAnnotationComponent,
   ],
   providers: [
     DocumentRendererService,

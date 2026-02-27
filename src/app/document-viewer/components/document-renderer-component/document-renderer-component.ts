@@ -1,18 +1,15 @@
 import {
   ChangeDetectionStrategy,
-  Component, computed,
+  Component,
   ElementRef,
   HostListener,
   inject,
-  input, linkedSignal,
-  output,
-  signal,
+  input,
+  linkedSignal,
   viewChild
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { AddAnotationComponent } from '../dialogs/add-anotation-component/add-anotation.component';
 import { DocumentRendererService } from '../../services/document-renderer.service';
-import { IDocumentRendererAnnotation, IPosition, IViewerOffset } from '../../models';
+import { IPosition } from '../../models';
 
 @Component({
   selector: 'app-document-renderer',

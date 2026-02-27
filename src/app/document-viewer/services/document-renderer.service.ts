@@ -1,9 +1,8 @@
 import { computed, inject, Injectable, Signal, signal, WritableSignal } from '@angular/core';
 import { DocumentRendererComponent } from '../components/document-renderer-component/document-renderer-component';
-import { AnnotationsMap, IDocumentViewerChanges, IViewerOffset } from '../models/document-viewer';
-import { IDocumentRendererAnnotation, IPosition } from '../models';
+import { AnnotationsMap, IDocumentRendererAnnotation, IDocumentViewerChanges, IPosition, ISize } from '../models';
 import { IDocument } from '../../services/document-request.service';
-import { AddAnotationComponent } from '../components/dialogs/add-anotation-component/add-anotation.component';
+import { AddAnnotationComponent } from '../components/dialogs/add-anotation-component/add-annotation.component';
 import { MatDialog } from '@angular/material/dialog';
 
 @Injectable()
@@ -11,7 +10,7 @@ export class DocumentRendererService {
   readonly matDialog = inject(MatDialog);
 
   private readonly zoomStep = 10;
-  private readonly baseSize: IPosition[] = [];
+  private readonly rendererBaseSizes: ISize[] = [];
   private readonly annotations = new Map<number, WritableSignal<IDocumentRendererAnnotation[]>>();
 
   private documentRenderers!: Signal<readonly DocumentRendererComponent[]>;
@@ -25,16 +24,18 @@ export class DocumentRendererService {
     this.currentDocument.set(document);
 
     document.pages.forEach(page => this.annotations.set(page.number, signal([])));
-
-    this.updateStyles();
   }
 
   getAnnotations(id: number): Signal<IDocumentRendererAnnotation[]> {
     return computed(() => {
       const scale = this.currentScale();
-      const annotations = this.annotations.get(id)!();
+      const annotationsSrc = this.annotations.get(id);
 
-      return annotations.map(v => ({ ...v, position: { x: v.position.x * scale, y: v.position.y * scale } }));
+      if (!annotationsSrc) {
+        return [];
+      }
+
+      return annotationsSrc().map(v => ({ ...v, position: { x: v.position.x * scale, y: v.position.y * scale } }));
     })
   }
 
@@ -51,43 +52,54 @@ export class DocumentRendererService {
   private updateStyles(): void {
     const renderers = this.documentRenderers();
 
-    if (!this.baseSize.length) {
+    if (!this.rendererBaseSizes.length) {
       renderers
-        .map(d => ({ x: d.rendererElement()!.nativeElement.clientWidth, y: d.rendererElement()!.nativeElement.clientHeight }))
-        .forEach(v => this.baseSize.push(v));
+        .map(d => ({ width: d.rendererElement()!.nativeElement.clientWidth, height: d.rendererElement()!.nativeElement.clientHeight }))
+        .forEach(v => this.rendererBaseSizes.push(v));
     }
 
 
-    renderers?.forEach((renderer: DocumentRendererComponent, index) => {
-      const rendererElement = renderer.renderWrapper;
-      const image = renderer.rendererElement();
+    renderers.forEach((renderer: DocumentRendererComponent, index) => {
+      const rendererElement = renderer.rendererElement();
       const scale = this.currentScale();
+      const rendererBaseSize = this.rendererBaseSizes[index];
 
-      image!.nativeElement.style.width = `${ this.baseSize[index].x * scale }px`;
-      image!.nativeElement.style.height = `${ this.baseSize[index].y * scale }px`;
-
-      rendererElement!.nativeElement.style.width = `${ this.baseSize[index].x * scale }px`;
-      rendererElement!.nativeElement.style.height = `${ this.baseSize[index].y * scale }px`;
-      rendererElement!.nativeElement.style.minHeight = `${ this.baseSize[index].y * scale }px`;
+      rendererElement!.nativeElement.style.width = `${ rendererBaseSize.width * scale }px`;
+      rendererElement!.nativeElement.style.height = `${ rendererBaseSize.height * scale }px`;
     });
   }
 
   addAnnotation(pageId: number, x: number, y: number, rect: DOMRect): void {
-    this.matDialog.open(AddAnotationComponent, { disableClose: true })
+    this.matDialog.open(AddAnnotationComponent, { disableClose: true })
       .afterClosed()
       .subscribe(text => {
+        const scale = this.currentScale();
         const newAnnotation = <IDocumentRendererAnnotation> {
           text,
-          position: { x: (x - rect.left) / this.currentScale(), y: (y - rect.top) / this.currentScale() },
+          position: {
+            x: (x - rect.left) / scale,
+            y: (y - rect.top) / scale,
+          },
           id: new Date().getTime().toString(),
         };
 
-        this.annotations.get(pageId)!.update(value => [...value, newAnnotation]);
+        const annotationSrc = this.annotations.get(pageId);
+
+        if (!annotationSrc) {
+          return;
+        }
+
+        annotationSrc.update(value => [...value, newAnnotation]);
       });
   }
 
   removeAnnotation(pageId: number, id: string): void {
-    const annotationsSrc = this.annotations.get(pageId)!;
+    const annotationsSrc = this.annotations.get(pageId);
+
+    if (!annotationsSrc) {
+      return;
+    }
+
     const annotations = annotationsSrc();
     const index = annotations.findIndex(v => v.id === id);
 
@@ -98,7 +110,13 @@ export class DocumentRendererService {
   }
 
   updateAnnotationPosition(pageId: number, id: string, position: IPosition): void {
-    this.annotations.get(pageId)!.update(value => {
+    const annotationsSrc = this.annotations.get(pageId);
+
+    if (!annotationsSrc) {
+      return;
+    }
+
+    annotationsSrc.update(value => {
       const updatedAnnotation = value.find(v => v.id === id);
       const scale = this.currentScale();
 
@@ -125,11 +143,16 @@ export class DocumentRendererService {
     return {
       ...currentDocument,
       annotations: currentDocument.pages.reduce((acc, pages) => {
+        const annotationsSrc = this.annotations.get(pages.number);
 
-        acc[pages.number] = this.annotations.get(pages.number)!();
+        if (!annotationsSrc) {
+          return acc;
+        }
+
+        acc[pages.number] = annotationsSrc();
 
         return acc;
       }, {  } as AnnotationsMap),
-    };;
+    };
   }
 }

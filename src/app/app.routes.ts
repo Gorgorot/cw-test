@@ -3,7 +3,7 @@ import { DocumentsPageComponent } from './pages/documents-component/documents-pa
 
 export const routes: Routes = [
   {
-    path: 'documents/:id',
+    path: 'document/view',
     component: DocumentsPageComponent
-  }
+  },
 ];

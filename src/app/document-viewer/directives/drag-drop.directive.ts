@@ -1,15 +1,4 @@
-import {
-  Directive,
-  ElementRef,
-  HostBinding,
-  HostListener,
-  inject,
-  input,
-  OnInit,
-  output,
-  Renderer2,
-  signal
-} from '@angular/core';
+import { Directive, ElementRef, HostBinding, HostListener, inject, input, output, signal } from '@angular/core';
 
 import { IPosition } from '../models';
 
@@ -25,7 +14,7 @@ export class DragDropDirective {
   readonly moving = output<IPosition>();
   private dragging = false;
 
-  readonly start = signal({ x: 0, y: 0 });
+  readonly movingPosition = signal<IPosition>({ x: 0, y: 0 });
 
   @HostBinding('style.will-change') willChange = 'transform';
 
@@ -36,7 +25,7 @@ export class DragDropDirective {
       return;
     }
 
-    this.start.set({ x: event.clientX, y: event.clientY });
+    this.movingPosition.set({ x: event.clientX, y: event.clientY });
 
     this.dragging = true;
   }
@@ -55,33 +44,29 @@ export class DragDropDirective {
       return;
     }
 
-    const start = this.start();
-    const deltaX = (event.clientX - start.x) / this.getScale();
-    const deltaY = (event.clientY - start.y) / this.getScale();
+    const start = this.movingPosition();
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
 
     if (this.checkBoundary(deltaX, deltaY)) {
-      this.start.set({ x: event.clientX, y: event.clientY });
+      this.movingPosition.set({ x: event.clientX, y: event.clientY });
 
       this.moving.emit({ x: deltaX, y: deltaY });
     }
   }
 
-  private getScale(): number {
-    if (!this.scalableWith()) return 1;
-    const style = window.getComputedStyle(this.scalableWith());
-    const matrix = new DOMMatrix(style.transform);
-
-    return matrix.a || 1;
-  }
-
   private checkBoundary(deltaX: number, deltaY: number): boolean {
     const boundaryElement = this.scalableWith();
-
     const boundaryRect = boundaryElement.getBoundingClientRect();
     const elementRect = this.elementRef.nativeElement.getBoundingClientRect();
-
-    const xBounds = { start: boundaryRect.left, end: boundaryRect.left + boundaryRect.width - elementRect.width };
-    const yBounds = { start: boundaryRect.top, end: boundaryRect.top + boundaryRect.height - elementRect.height };
+    const xBounds = {
+      start: boundaryRect.left,
+      end: boundaryRect.left + boundaryRect.width - elementRect.width
+    };
+    const yBounds = {
+      start: boundaryRect.top,
+      end: boundaryRect.top + boundaryRect.height - elementRect.height
+    };
 
     // x checks
     if (elementRect.left + deltaX < xBounds.start) {
