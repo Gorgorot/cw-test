@@ -27,7 +27,7 @@ export class DocumentRendererComponent {
   readonly url = input.required<string>();
   readonly pageId = input.required<number>();
 
-  annotations = linkedSignal({
+  readonly annotations = linkedSignal({
     source: this.pageId,
     computation: pageId => this.documentRendererService.getAnnotations(pageId),
   });
