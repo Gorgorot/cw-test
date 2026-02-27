@@ -1,0 +1,25 @@
+@let _document = document();
+
+<div class="controls">
+  <button matIconButton (click)="onSave()">
+    <mat-icon>save</mat-icon>
+  </button>
+
+  <div class="zoom-controls">
+    <button matIconButton (click)="zoomIn()" [disabled]="zoomInDisabled()">
+      <mat-icon>add</mat-icon>
+    </button>
+    <div class="zoom-controls__value">
+      {{ currentZoom() }}
+    </div>
+    <button matIconButton (click)="zoomOut()" [disabled]="zoomOutDisabled()">
+      <mat-icon>remove</mat-icon>
+    </button>
+  </div>
+</div>
+
+<div class="pages-container">
+  @for(page of _document.pages; track page.number; let l = $last) {
+    <app-document-renderer [url]="page.imageUrl" [pageId]="page.number" class="renderer-wrapper"/>
+  }
+</div>

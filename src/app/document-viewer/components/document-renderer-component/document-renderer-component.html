@@ -1,0 +1,12 @@
+  <img #renderer class="document-renderer" [src]="url()" draggable="false">
+
+  <div class="document-annotations">
+    @for(annotation of annotations()(); track annotation.id) {
+      <app-document-annotation appDragDrop
+                               [scalableWith]="renderWrapper!.nativeElement"
+                               [text]="annotation.text"
+                               [position]="annotation.position"
+                               (dblclick)="onRightClickAnnotation(annotation.id)"
+                               (moving)="updateAnnotationPosition(annotation.id, $event)"/>
+    }
+  </div>

@@ -1,0 +1,38 @@
+:host {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+  max-width: 100%;
+
+  .renderer-wrapper {
+    display: flex;
+    background: gray;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .zoom-controls {
+    display: flex;
+    align-items: center;
+    justify-self: center;
+    gap: 8px;
+  }
+
+  .pages-container {
+    display: flex;
+    flex-grow: 2;
+    overflow: auto;
+    flex-direction: column;
+    gap: 20px;
+
+    &__spacer {
+      padding: 10px 0;
+    }
+  }
+}

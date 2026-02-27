@@ -1,0 +1,9 @@
+<mat-toolbar>
+  <span>CwTest</span>
+</mat-toolbar>
+
+<section #mainSection class="content">
+  @if (selectedDocument(); as doc) {
+    <app-document-viewer [document]="doc" (saveChanges)="onViewerSaveChanges($event)" [style.height.px]="viewerHeight()"/>
+  }
+</section>
